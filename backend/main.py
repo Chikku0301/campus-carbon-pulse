@@ -1,3 +1,4 @@
+import sys
 import json
 import pandas as pd
 from fastapi import FastAPI, HTTPException
@@ -7,6 +8,12 @@ import os
 from google import genai
 from forecast import generate_24h_forecast_json
 from dotenv import load_dotenv
+
+# Configure UTF-8 encoding for standard output and error to prevent UnicodeEncodeError on Windows
+if hasattr(sys.stdout, 'reconfigure'):
+    sys.stdout.reconfigure(encoding='utf-8')
+if hasattr(sys.stderr, 'reconfigure'):
+    sys.stderr.reconfigure(encoding='utf-8')
 
 load_dotenv()
 
@@ -272,7 +279,7 @@ async def get_insights():
         }
         
         # Get API key from environment variable
-       api_key = os.getenv("GEMINI_API_KEY")
+        api_key = os.getenv("GEMINI_API_KEY")
 
         if not api_key:
             raise HTTPException(

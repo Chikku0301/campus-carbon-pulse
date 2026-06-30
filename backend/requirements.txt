@@ -6,3 +6,4 @@ joblib
 numpy
 google-genai
 scikit-learn
+python-dotenv
