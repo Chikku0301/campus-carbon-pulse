@@ -7,7 +7,7 @@ from datetime import datetime
 import os
 from google import genai
 from forecast import generate_24h_forecast_json
-from dotenv import load_dotenv
+from dotenv import load_dotenv, find_dotenv
 
 # Configure UTF-8 encoding for standard output and error to prevent UnicodeEncodeError on Windows
 if hasattr(sys.stdout, 'reconfigure'):
@@ -22,6 +22,12 @@ app = FastAPI()
 # Auto-generate forecasts on startup
 @app.on_event("startup")
 async def startup_event():
+    # Force UTF-8 encoding on standard streams to prevent UnicodeEncodeError in Windows CMD/PowerShell
+    if hasattr(sys.stdout, 'reconfigure'):
+        sys.stdout.reconfigure(encoding='utf-8')
+    if hasattr(sys.stderr, 'reconfigure'):
+        sys.stderr.reconfigure(encoding='utf-8')
+
     print("\n" + "="*60)
     print("🚀 Starting Campus Carbon Pulse Backend...")
     print("="*60)
@@ -61,6 +67,12 @@ def update_geojson_file(results):
     Injects API results and standardized heights into the GeoJSON file.
     Ensures compatibility with the index.html (lowercase keys).
     """
+    # Force UTF-8 encoding on standard streams to prevent UnicodeEncodeError in Windows CMD/PowerShell
+    if hasattr(sys.stdout, 'reconfigure'):
+        sys.stdout.reconfigure(encoding='utf-8')
+    if hasattr(sys.stderr, 'reconfigure'):
+        sys.stderr.reconfigure(encoding='utf-8')
+
     if not os.path.exists(GEOJSON_FILE):
         print(f"Warning: {GEOJSON_FILE} not found. Skipping GeoJSON update.")
         return
@@ -289,8 +301,7 @@ async def get_insights():
 
         
         # Initialize Gemini client
-        genai.configure(api_key=api_key)
-        model = genai.GenerativeModel("gemini-2.5-flash")
+        client = genai.Client(api_key=api_key)
 
         
         # Create enhanced prompt requesting JSON output
@@ -362,7 +373,10 @@ REQUIREMENTS:
 - Focus on practical, implementable solutions for a university campus
 - Return ONLY valid JSON, no markdown formatting or code blocks"""
         
-        response = model.generate_content(prompt)
+        response = client.models.generate_content(
+            model="gemini-2.5-flash",
+            contents=prompt,
+        )
         
         # Parse the JSON response
         response_text = response.text.strip()
