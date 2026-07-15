@@ -24,6 +24,7 @@ A real-time 3D visualization dashboard that uses LSTM neural networks to predict
 ## Tech Stack
 
 ### **Frontend**
+
 - **React 18** + **TypeScript**
 - **Vite** (build tool)
 - **MapLibre GL** (3D mapping)
@@ -31,6 +32,7 @@ A real-time 3D visualization dashboard that uses LSTM neural networks to predict
 - **shadcn/ui** (components)
 
 ### **Backend**
+
 - **FastAPI** (Python web framework)
 - **TensorFlow/Keras** (LSTM models)
 - **Pandas** (data processing)
@@ -41,17 +43,20 @@ A real-time 3D visualization dashboard that uses LSTM neural networks to predict
 ## Installation
 
 ### **Prerequisites**
+
 - Node.js 18+ and npm
 - Python 3.8+
 - Git
 
 ### **1. Clone the Repository**
+
 ```bash
 git clone <your-repo-url>
 cd campus-carbon-pulse-main
 ```
 
 ### **2. Frontend Setup**
+
 ```bash
 # Install dependencies
 npm install
@@ -61,6 +66,7 @@ npm run dev
 ```
 
 ### **3. Backend Setup**
+
 ```bash
 # Navigate to backend directory
 cd backend
@@ -132,6 +138,7 @@ campus-carbon-pulse-main/
 ## Color Scale
 
 Buildings are color-coded based on emission levels:
+
 - 🟢 **Green** (0-33%): Low emissions
 - 🟡 **Yellow** (34-66%): Moderate emissions
 - 🔴 **Red** (67-100%): High emissions
@@ -141,9 +148,11 @@ Buildings are color-coded based on emission levels:
 ## API Endpoints
 
 ### `GET /get-emissions/{hour}`
+
 Returns emission predictions for a specific hour (0-23).
 
 **Response:**
+
 ```json
 {
   "hour": 10,
@@ -173,6 +182,6 @@ This project is open source and available under the MIT License.
 
 ## Authors
 
-Built with ❤️ for sustainable campus management
+Built with ❤️ for sustainable campus management and motivation was the potential it had to reform the management of carbon credits .
 
-
+This can be scaled to industries , urban areas and also cities based on the available resources
