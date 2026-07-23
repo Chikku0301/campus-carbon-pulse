@@ -1,10 +1,10 @@
 # Campus Carbon Pulse
 
-**AI-Powered Digital Twin for Campus Carbon Footprint Monitoring**
+## AI-Powered Digital Twin for Campus Carbon Footprint Monitoring
 
-A real-time 3D visualization dashboard that uses LSTM neural networks to predict and monitor carbon emissions across campus buildings over a 24-hour period.
+A real-time 3D visualization platform that predicts and monitors campus-wide carbon emissions using LSTM-based forecasting models. The system provides a digital twin of the campus, enabling interactive visualization of predicted emissions over a 24-hour period.
 
-![Campus Carbon Pulse](https://img.shields.io/badge/Status-Active-success)
+![Status](https://img.shields.io/badge/Status-Active-success)
 ![React](https://img.shields.io/badge/React-18.3-blue)
 ![Python](https://img.shields.io/badge/Python-3.x-blue)
 ![TensorFlow](https://img.shields.io/badge/TensorFlow-2.x-orange)
@@ -13,145 +13,155 @@ A real-time 3D visualization dashboard that uses LSTM neural networks to predict
 
 ## Features
 
-- **🤖 LSTM-Based Forecasting**: 24-hour carbon emission predictions using trained neural networks
-- **🗺️ Interactive 3D Map**: Real-time campus visualization with color-coded heat levels
-- **📊 Live Dashboard**: Dynamic metrics showing total campus emissions
-- **⏱️ Time Slider**: Explore emissions across different hours of the day
-- **🎨 Modern UI**: Glassmorphic design with smooth animations
+- 🤖 **LSTM-Based Forecasting** – Predicts carbon emissions for the next 24 hours using trained neural network models.
+- 🗺️ **Interactive 3D Campus Map** – Visualizes building-wise emissions through dynamic color-coded heat maps.
+- 📊 **Live Analytics Dashboard** – Displays real-time campus emission metrics and insights.
+- ⏱️ **Time-Based Exploration** – Navigate through hourly predictions using an interactive time slider.
+- 🎨 **Modern User Interface** – Glassmorphic design with responsive interactions and smooth animations.
 
 ---
 
 ## Tech Stack
 
-### **Frontend**
+### Frontend
 
-- **React 18** + **TypeScript**
-- **Vite** (build tool)
-- **MapLibre GL** (3D mapping)
-- **Tailwind CSS** (styling)
-- **shadcn/ui** (components)
+- React 18
+- TypeScript
+- Vite
+- MapLibre GL
+- Tailwind CSS
+- shadcn/ui
 
-### **Backend**
+### Backend
 
-- **FastAPI** (Python web framework)
-- **TensorFlow/Keras** (LSTM models)
-- **Pandas** (data processing)
-- **Uvicorn** (ASGI server)
+- FastAPI
+- TensorFlow / Keras
+- Pandas
+- Uvicorn
 
 ---
 
 ## Installation
 
-### **Prerequisites**
+### Prerequisites
 
-- Node.js 18+ and npm
+- Node.js 18+
+- npm
 - Python 3.8+
 - Git
 
-### **1. Clone the Repository**
+### Clone the Repository
 
 ```bash
-git clone <your-repo-url>
+git clone <your-repository-url>
 cd campus-carbon-pulse-main
 ```
 
-### **2. Frontend Setup**
+### Frontend Setup
 
 ```bash
-# Install dependencies
 npm install
-
-# Start development server (runs on http://localhost:8080)
 npm run dev
 ```
 
-### **3. Backend Setup**
+The frontend will be available at:
+
+```
+http://localhost:8080
+```
+
+### Backend Setup
 
 ```bash
-# Navigate to backend directory
 cd backend
 
-# Create virtual environment
 python -m venv venv
 
-# Activate virtual environment
-# Windows:
+# Windows
 venv\Scripts\activate
-# macOS/Linux:
+
+# macOS/Linux
 source venv/bin/activate
 
-# Install dependencies
 pip install -r requirements.txt
 
-# Start FastAPI server (runs on http://localhost:8000)
 python -m uvicorn main:app --reload --port 8000
+```
+
+The backend runs at:
+
+```
+http://localhost:8000
 ```
 
 ---
 
 ## Usage
 
-1. **Start the backend server** (port 8000)
-2. **Start the frontend dev server** (port 8080)
-3. **Open browser** to `http://localhost:8080`
-4. **Interact with the map**:
-   - Move the time slider to see emissions at different hours
-   - Click buildings to view detailed metrics
-   - Watch colors change based on predicted emissions
+1. Start the FastAPI backend.
+2. Launch the React frontend.
+3. Open the application in your browser.
+4. Explore campus emissions by:
+   - Adjusting the hourly time slider.
+   - Clicking on buildings to inspect emission statistics.
+   - Observing real-time color transitions based on predicted emission levels.
 
 ---
 
 ## Project Structure
 
-```
+```text
 campus-carbon-pulse-main/
 ├── backend/
 │   ├── models/              # Trained LSTM models (*.keras)
-│   ├── main.py              # FastAPI server
-│   ├── forecast.py          # LSTM prediction logic
-│   ├── emissions.json       # 24-hour forecast data
+│   ├── main.py              # FastAPI application
+│   ├── forecast.py          # Prediction pipeline
+│   ├── emissions.json       # Generated 24-hour forecasts
 │   ├── campus.json          # GeoJSON building data
-│   └── requirements.txt     # Python dependencies
+│   └── requirements.txt     # Backend dependencies
+│
 ├── src/
 │   ├── components/          # React components
-│   ├── pages/               # Page components
+│   ├── pages/               # Application pages
 │   ├── lib/                 # Utility functions
-│   └── types/               # TypeScript types
+│   └── types/               # TypeScript definitions
+│
 ├── public/
-│   └── campus.json          # Static GeoJSON data
-├── package.json             # Node dependencies
-└── vite.config.ts           # Vite configuration
+│   └── campus.json          # Static GeoJSON dataset
+│
+├── package.json
+└── vite.config.ts
 ```
 
 ---
 
-## How It Works
+## System Workflow
 
-1. **Data Collection**: Historical campus energy consumption data (CSV)
-2. **Model Training**: LSTM models trained per building to learn usage patterns
-3. **Forecasting**: `forecast.py` generates 24-hour predictions → `emissions.json`
-4. **API**: FastAPI serves predictions via `/get-emissions/{hour}` endpoint
-5. **Visualization**: React frontend fetches data and updates 3D map colors in real-time
-
----
-
-## Color Scale
-
-Buildings are color-coded based on emission levels:
-
-- 🟢 **Green** (0-33%): Low emissions
-- 🟡 **Yellow** (34-66%): Moderate emissions
-- 🔴 **Red** (67-100%): High emissions
+1. Historical campus energy consumption data is collected in CSV format.
+2. Individual LSTM models are trained for each building to capture energy usage patterns.
+3. The trained models generate 24-hour forecasts through `forecast.py`, which are stored in `emissions.json`.
+4. FastAPI exposes the predictions via the `/get-emissions/{hour}` endpoint.
+5. The React application retrieves these predictions and updates the 3D campus visualization in real time.
 
 ---
 
-## API Endpoints
+## Emission Color Scale
+
+| Level     | Range   |
+| --------- | ------- |
+| 🟢 Green  | 0–33%   |
+| 🟡 Yellow | 34–66%  |
+| 🔴 Red    | 67–100% |
+
+---
+
+## API
 
 ### `GET /get-emissions/{hour}`
 
-Returns emission predictions for a specific hour (0-23).
+Returns the predicted carbon emissions for all campus buildings at a specified hour (0–23).
 
-**Response:**
+### Sample Response
 
 ```json
 {
@@ -170,18 +180,18 @@ Returns emission predictions for a specific hour (0-23).
 
 ## Contributing
 
-Contributions are welcome! Please feel free to submit a Pull Request.
+Contributions are welcome. Feel free to fork the repository, submit improvements, or open a pull request.
 
 ---
 
 ## License
 
-This project is open source and available under the MIT License.
+This project is released under the MIT License.
 
 ---
 
 ## Authors
 
-Built with ❤️ for sustainable campus management and motivation was the potential it had to reform the management of carbon credits .
+Developed to demonstrate how AI-powered digital twins can support sustainable campus management and improve carbon credit planning through predictive analytics.
 
-This can be scaled to industries , urban areas and also cities based on the available resources
+The same architecture can be extended to larger environments, including industrial facilities, urban regions, and smart cities, depending on the availability of energy and infrastructure data.
