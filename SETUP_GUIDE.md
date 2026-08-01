@@ -1,234 +1,337 @@
-# 🚀 Campus Carbon Pulse - Complete Setup Guide
+# 🚀 Campus Carbon Pulse – Complete Setup Guide
 
-This guide will walk you through setting up and running the Campus Carbon Pulse project from scratch.
+This guide walks you through the complete installation and execution process for **Campus Carbon Pulse**, from setting up the development environment to running the application successfully.
 
 ---
 
-## 📋 Prerequisites
+# 📋 Prerequisites
 
-Before you begin, ensure you have the following installed:
+Before getting started, ensure the following software is installed on your system.
 
-### **Required Software:**
-1. **Node.js** (v18 or higher) - [Download here](https://nodejs.org/)
-2. **Python** (v3.8 or higher) - [Download here](https://www.python.org/downloads/)
-3. **Git** (optional, for cloning) - [Download here](https://git-scm.com/)
+## Required Software
 
-### **Verify Installation:**
-Open a terminal/command prompt and run:
+- **Node.js** (v18 or later)
+- **Python** (v3.8 or later)
+- **Git** _(optional, if cloning the repository)_
+
+## Verify Your Installation
+
+Open a terminal or command prompt and run:
+
 ```bash
-node --version    # Should show v18.x.x or higher
-npm --version     # Should show 9.x.x or higher
-python --version  # Should show 3.8.x or higher
+node --version
+npm --version
+python --version
 ```
 
+Expected versions:
+
+- Node.js **v18+**
+- npm **v9+**
+- Python **v3.8+**
+
 ---
 
-## 📥 Step 1: Get the Project Files
+# 📥 Step 1: Obtain the Project
 
-### **Option A: Clone from GitHub**
+## Option A – Clone the Repository
+
 ```bash
 git clone <repository-url>
 cd campus-carbon-pulse-main
 ```
 
-### **Option B: Download ZIP**
-1. Download the ZIP file
-2. Extract it to your desired location
-3. Open terminal/command prompt in the extracted folder
+## Option B – Download the ZIP
+
+1. Download the project ZIP file.
+2. Extract it to your preferred location.
+3. Open a terminal in the extracted project directory.
 
 ---
 
-## 🎨 Step 2: Setup Frontend (React + Vite)
+# 🎨 Step 2: Frontend Setup (React + Vite)
 
-### **2.1 Install Dependencies**
+## Install Dependencies
+
+Ensure you are inside the project root directory.
+
 ```bash
-# Make sure you're in the project root directory
 npm install
 ```
 
-This will install all required packages (React, Vite, MapLibre, etc.). It may take 2-3 minutes.
+This command installs all required frontend dependencies, including React, Vite, MapLibre GL, and related packages.
 
-### **2.2 Verify Installation**
-Check that `node_modules/` folder was created in your project root.
+> Installation may take a few minutes depending on your internet connection.
+
+## Verify Installation
+
+After completion, confirm that the `node_modules/` directory has been created.
 
 ---
 
-## 🐍 Step 3: Setup Backend (Python + FastAPI)
+# 🐍 Step 3: Backend Setup (Python + FastAPI)
 
-### **3.1 Navigate to Backend Directory**
+## Navigate to the Backend Directory
+
 ```bash
 cd backend
 ```
 
-### **3.2 Create Virtual Environment**
+---
 
-**On Windows:**
+## Create a Virtual Environment
+
+### Windows
+
 ```bash
 python -m venv venv
 ```
 
-**On macOS/Linux:**
+### macOS / Linux
+
 ```bash
 python3 -m venv venv
 ```
 
-### **3.3 Activate Virtual Environment**
+---
 
-**On Windows (Command Prompt):**
+## Activate the Virtual Environment
+
+### Windows (Command Prompt)
+
 ```bash
 venv\Scripts\activate
 ```
 
-**On Windows (PowerShell):**
+### Windows (PowerShell)
+
 ```bash
 venv\Scripts\Activate.ps1
 ```
 
-**On macOS/Linux:**
+### macOS / Linux
+
 ```bash
 source venv/bin/activate
 ```
 
-You should see `(venv)` appear in your terminal prompt.
+Once activated, your terminal should display:
 
-### **3.4 Install Python Dependencies**
+```text
+(venv)
+```
+
+---
+
+## Install Backend Dependencies
+
 ```bash
 pip install -r requirements.txt
 ```
 
-This installs FastAPI, TensorFlow, Pandas, etc. May take 3-5 minutes.
+This installs all required backend libraries, including:
 
-### **3.5 Verify Backend Files**
-Ensure these files exist in the `backend/` folder:
+- FastAPI
+- TensorFlow
+- Pandas
+- Uvicorn
+- Other project dependencies
+
+> The installation may take several minutes.
+
+---
+
+## Verify Backend Files
+
+Ensure the following files are present inside the `backend/` directory:
+
 - ✅ `main.py`
 - ✅ `forecast.py`
 - ✅ `emissions.json`
 - ✅ `campus.json`
-- ✅ `models/` folder with `.keras` files
+- ✅ `models/` directory containing the trained `.keras` models
 
 ---
 
-## ▶️ Step 4: Run the Application
+# ▶️ Step 4: Run the Application
 
-You need **TWO terminal windows** running simultaneously.
+The application requires **two terminal windows** running simultaneously.
 
-### **Terminal 1: Start Backend Server**
+---
+
+## Terminal 1 – Start the Backend Server
 
 ```bash
-# Navigate to backend folder (if not already there)
 cd backend
 
-# Activate virtual environment (if not already activated)
-# Windows:
+# Activate the virtual environment
+
+# Windows
 venv\Scripts\activate
-# macOS/Linux:
+
+# macOS/Linux
 source venv/bin/activate
 
-# Start FastAPI server
 python -m uvicorn main:app --reload --port 8000
 ```
 
-**Expected Output:**
-```
-INFO:     Uvicorn running on http://127.0.0.1:8000 (Press CTRL+C to quit)
+Expected output:
+
+```text
+INFO:     Uvicorn running on http://127.0.0.1:8000
 INFO:     Started reloader process
 INFO:     Started server process
 INFO:     Waiting for application startup.
 INFO:     Application startup complete.
 ```
 
-✅ **Backend is now running on http://localhost:8000**
+✅ Backend server is now running at:
+
+```
+http://localhost:8000
+```
 
 ---
 
-### **Terminal 2: Start Frontend Server**
+## Terminal 2 – Start the Frontend Server
 
-Open a **NEW terminal window** (keep the backend running):
+Open a **new terminal** while keeping the backend running.
 
 ```bash
-# Navigate to project root (NOT backend folder)
 cd campus-carbon-pulse-main
-
-# Start Vite dev server
 npm run dev
 ```
 
-**Expected Output:**
+Expected output:
+
+```text
+VITE v5.x.x ready
+
+Local: http://localhost:8080/
 ```
-  VITE v5.x.x  ready in 500 ms
 
-  ➜  Local:   http://localhost:8080/
-  ➜  Network: use --host to expose
-  ➜  press h + enter to show help
+✅ Frontend server is now running at:
+
+```
+http://localhost:8080
 ```
 
-✅ **Frontend is now running on http://localhost:8080**
+---
+
+# 🌐 Step 5: Open the Application
+
+Open your browser and navigate to:
+
+```
+http://localhost:8080
+```
+
+You should see:
+
+- 3D Campus Map
+- Time Slider
+- "Campus Twin" Dashboard
+- Real-time Carbon Emission Visualization
 
 ---
 
-## 🌐 Step 5: Access the Application
+# 🎮 Step 6: Verify Functionality
 
-1. Open your web browser
-2. Navigate to: **http://localhost:8080**
-3. You should see the Campus Carbon Pulse dashboard with:
-   - 3D campus map
-   - Time slider at the bottom
-   - "CAMPUS TWIN" header
-   - Real-time emission data
+## Test the Time Slider
 
----
+Move the slider between **Hour 0** and **Hour 23**.
 
-## 🎮 Step 6: Test the Application
+Expected behavior:
 
-### **Test 1: Time Slider**
-- Move the slider from left (Hour 0) to right (Hour 23)
-- Buildings should change colors (green → yellow → red)
-- Total emission value should update
-
-### **Test 2: Building Click**
-- Click on any building on the 3D map
-- A popup should appear showing:
-  - Building name
-  - Heat Level (%)
-  - Carbon emission (kg/h)
-  - Height (m)
-
-### **Test 3: API Check**
-- Open: http://localhost:8000/get-emissions/10
-- You should see JSON data with emission predictions
+- Building colors update dynamically.
+- Total emission values change.
+- Heat levels adjust accordingly.
 
 ---
 
-## 🛑 Stopping the Application
+## Test Building Information
 
-### **Stop Frontend:**
-In Terminal 2, press: `Ctrl + C`
+Click any building on the campus map.
 
-### **Stop Backend:**
-In Terminal 1, press: `Ctrl + C`
+The popup should display:
 
-### **Deactivate Python Virtual Environment:**
+- Building Name
+- Heat Level (%)
+- Carbon Emission (kg/h)
+- Building Height (m)
+
+---
+
+## Test the Backend API
+
+Open the following URL in your browser:
+
+```
+http://localhost:8000/get-emissions/10
+```
+
+A JSON response containing predicted emission values should be returned.
+
+---
+
+# 🛑 Stopping the Application
+
+## Stop the Frontend
+
+Press:
+
+```text
+Ctrl + C
+```
+
+in the frontend terminal.
+
+---
+
+## Stop the Backend
+
+Press:
+
+```text
+Ctrl + C
+```
+
+in the backend terminal.
+
+---
+
+## Deactivate the Virtual Environment
+
 ```bash
 deactivate
 ```
 
 ---
 
-## 🔄 Running Again Later
+# 🔄 Running the Project Again
 
-### **Quick Start (After Initial Setup):**
+After the initial setup, starting the project only requires two commands.
 
-**Terminal 1 (Backend):**
+## Backend
+
 ```bash
 cd backend
-venv\Scripts\activate          # Windows
-# OR
-source venv/bin/activate       # macOS/Linux
+
+# Activate virtual environment
+
+# Windows
+venv\Scripts\activate
+
+# macOS/Linux
+source venv/bin/activate
 
 python -m uvicorn main:app --reload --port 8000
 ```
 
-**Terminal 2 (Frontend):**
+---
+
+## Frontend
+
 ```bash
 cd campus-carbon-pulse-main
 npm run dev
@@ -236,118 +339,153 @@ npm run dev
 
 ---
 
-## 🐛 Troubleshooting
+# 🐛 Troubleshooting
 
-### **Problem: "Port 8000 already in use"**
-**Solution:**
+## Port 8000 Already in Use
+
+### Windows
+
 ```bash
-# Windows:
 netstat -ano | findstr :8000
 taskkill /PID <PID_NUMBER> /F
+```
 
-# macOS/Linux:
+### macOS / Linux
+
+```bash
 lsof -ti:8000 | xargs kill -9
 ```
 
-### **Problem: "Port 8080 already in use"**
-**Solution:** Edit `vite.config.ts` and change the port:
+---
+
+## Port 8080 Already in Use
+
+Edit `vite.config.ts`:
+
 ```typescript
 server: {
-  port: 3000,  // Change to any available port
+  port: 3000;
 }
 ```
 
-### **Problem: "Module not found" errors**
-**Solution:**
+Choose any available port.
+
+---
+
+## Module Not Found Errors
+
+### Frontend
+
 ```bash
-# Frontend:
 rm -rf node_modules package-lock.json
 npm install
+```
 
-# Backend:
+### Backend
+
+```bash
 pip install -r requirements.txt --force-reinstall
 ```
 
-### **Problem: Python virtual environment won't activate (Windows)**
-**Solution:**
+---
+
+## Virtual Environment Not Activating (Windows)
+
+Run PowerShell as Administrator:
+
 ```bash
-# Run PowerShell as Administrator:
 Set-ExecutionPolicy RemoteSigned
 ```
 
-### **Problem: Map not loading**
-**Solution:**
-- Check browser console (F12) for errors
-- Verify `public/campus.json` exists
-- Ensure backend is running on port 8000
+---
 
-### **Problem: Colors not changing**
-**Solution:**
-- Check that `backend/emissions.json` exists
-- Verify API is responding: http://localhost:8000/get-emissions/0
-- Clear browser cache (Ctrl + Shift + R)
+## Map Not Loading
+
+Verify the following:
+
+- Backend server is running.
+- `public/campus.json` exists.
+- Browser console (F12) shows no errors.
 
 ---
 
-## 📊 Project Architecture
+## Building Colors Not Updating
+
+Verify:
+
+- `backend/emissions.json` exists.
+- Backend API is responding.
+- Browser cache has been cleared (`Ctrl + Shift + R`).
+
+---
+
+# 📊 Project Architecture
+
+```text
+Browser (http://localhost:8080)
+│
+├── React Frontend
+│   ├── 3D Campus Map (MapLibre)
+│   ├── Dashboard
+│   ├── Time Slider
+│   └── UI Components
+│
+│
+├── HTTP Request
+│   GET /get-emissions/{hour}
+│
+▼
+Backend (http://localhost:8000)
+│
+├── FastAPI Server
+│   ├── main.py
+│   ├── forecast.py
+│   ├── emissions.json
+│   └── models/*.keras
+│
+└── Returns predicted emissions to the frontend
+```
+
+---
+
+# 🎯 Next Steps
+
+Once the application is running, you can:
+
+- Explore emission forecasts across different hours.
+- Inspect individual buildings for detailed metrics.
+- Access the interactive API documentation at:
 
 ```
-┌─────────────────────────────────────────────────┐
-│  Browser (http://localhost:8080)                │
-│  ┌───────────────────────────────────────────┐  │
-│  │  React Frontend                           │  │
-│  │  - 3D Map (MapLibre)                      │  │
-│  │  - Time Slider                            │  │
-│  │  - Dashboard UI                           │  │
-│  └───────────────┬───────────────────────────┘  │
-└──────────────────┼──────────────────────────────┘
-                   │ HTTP Requests
-                   │ GET /get-emissions/{hour}
-                   ▼
-┌─────────────────────────────────────────────────┐
-│  Backend (http://localhost:8000)                │
-│  ┌───────────────────────────────────────────┐  │
-│  │  FastAPI Server                           │  │
-│  │  - main.py (API endpoints)                │  │
-│  │  - forecast.py (LSTM predictions)         │  │
-│  │  - emissions.json (24h forecasts)         │  │
-│  │  - models/*.keras (trained models)        │  │
-│  └───────────────────────────────────────────┘  │
-└─────────────────────────────────────────────────┘
+http://localhost:8000/docs
 ```
 
----
-
-## 🎯 Next Steps
-
-- ✅ Explore different hours on the time slider
-- ✅ Click buildings to see detailed metrics
-- ✅ Check the API documentation: http://localhost:8000/docs
-- ✅ Customize the campus map data in `public/campus.json`
-- ✅ Retrain LSTM models with new data
+- Modify the campus layout by editing `public/campus.json`.
+- Retrain the LSTM models using updated historical data.
 
 ---
 
-## 💡 Tips
+# 💡 Tips
 
-1. **Keep both terminals open** while using the app
-2. **Backend auto-reloads** when you edit Python files
-3. **Frontend hot-reloads** when you edit React/TypeScript files
-4. **Check browser console (F12)** for debugging
-5. **API docs available** at http://localhost:8000/docs
-
----
-
-## 📞 Need Help?
-
-If you encounter issues:
-1. Check the troubleshooting section above
-2. Verify all prerequisites are installed
-3. Ensure both servers are running
-4. Check terminal output for error messages
+- Keep **both terminals running** while using the application.
+- The backend automatically reloads when Python files are modified.
+- The frontend supports hot reloading for React and TypeScript changes.
+- Use the browser developer console (**F12**) to debug frontend issues.
+- FastAPI automatically generates API documentation at `/docs`.
 
 ---
 
-**Happy Monitoring! 🌍💚**
+# 📞 Need Assistance?
 
-Mohith branch commit check
+If you encounter any issues:
+
+1. Review the troubleshooting section.
+2. Verify all prerequisites are installed correctly.
+3. Ensure both frontend and backend servers are running.
+4. Check terminal logs and browser console for error messages.
+
+---
+
+## 🌍 Happy Monitoring!
+
+Thank you for using **Campus Carbon Pulse**. We hope this platform helps demonstrate the potential of intelligent digital twins for sustainable carbon monitoring and management.

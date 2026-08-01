@@ -1,6 +1,6 @@
 # 🌍 Campus Carbon Pulse - Backend Architecture & Documentation
 
-This document explains the architecture, file structure, data pipeline, and API endpoints of the **Campus Carbon Pulse** backend.
+This document explains the architecture, data pipeline, file structure and API endpoints of the **Campus Carbon Pulse** backend.
 
 ---
 
