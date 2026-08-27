@@ -1,96 +1,134 @@
+# Standard-library modules for stream setup, JSON data, dates, and file checks.
 import sys
 import json
+import os
+from datetime import datetime
+
+# Third-party libraries for data handling, API creation, CORS, and AI insights.
 import pandas as pd
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from datetime import datetime
-import os
 from google import genai
-from forecast import generate_24h_forecast_json
 from dotenv import load_dotenv, find_dotenv
 
-# Configure UTF-8 encoding for standard output and error to prevent UnicodeEncodeError on Windows
-if hasattr(sys.stdout, 'reconfigure'):
-    sys.stdout.reconfigure(encoding='utf-8')
-if hasattr(sys.stderr, 'reconfigure'):
-    sys.stderr.reconfigure(encoding='utf-8')
+# Local forecasting function used when the backend starts.
+from forecast import generate_24h_forecast_json
 
+
+# Configure UTF-8 output to support symbols in Windows terminals.
+if hasattr(sys.stdout, "reconfigure"):
+    sys.stdout.reconfigure(encoding="utf-8")
+
+if hasattr(sys.stderr, "reconfigure"):
+    sys.stderr.reconfigure(encoding="utf-8")
+
+
+# Load environment variables, including GEMINI_API_KEY, from a .env file.
 load_dotenv()
 
+# Create the FastAPI application.
 app = FastAPI()
 
-# Auto-generate forecasts on startup
+
+# Generate fresh forecast data whenever the backend starts.
 @app.on_event("startup")
 async def startup_event():
-    # Force UTF-8 encoding on standard streams to prevent UnicodeEncodeError in Windows CMD/PowerShell
-    if hasattr(sys.stdout, 'reconfigure'):
-        sys.stdout.reconfigure(encoding='utf-8')
-    if hasattr(sys.stderr, 'reconfigure'):
-        sys.stderr.reconfigure(encoding='utf-8')
+    # Reconfigure streams again for Windows command-line compatibility.
+    if hasattr(sys.stdout, "reconfigure"):
+        sys.stdout.reconfigure(encoding="utf-8")
 
-    print("\n" + "="*60)
+    if hasattr(sys.stderr, "reconfigure"):
+        sys.stderr.reconfigure(encoding="utf-8")
+
+    print("\n" + "=" * 60)
     print("🚀 Starting Campus Carbon Pulse Backend...")
-    print("="*60)
+    print("=" * 60)
     print("\n📊 Generating fresh forecasts aligned with current time...")
+
     try:
+        # Generate the latest 24-hour emissions forecast.
         generate_24h_forecast_json()
+
         print("\n✅ Forecasts generated successfully!")
         print("🌐 Backend ready to serve requests.\n")
+
     except Exception as e:
-        print(f"\n⚠️  Warning: Failed to generate forecasts: {e}")
+        # Keep the server available even if forecast generation fails.
+        print(f"\n⚠️ Warning: Failed to generate forecasts: {e}")
         print("Backend will use existing emissions.json if available.\n")
 
 
+# Allow the locally running frontend to call this API from another origin.
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:8080", "http://127.0.0.1:8080", "http://localhost:8081", "http://127.0.0.1:8081"],
+    allow_origins=[
+        "http://localhost:8080",
+        "http://127.0.0.1:8080",
+        "http://localhost:8081",
+        "http://127.0.0.1:8081",
+    ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
+
+# File containing forecasted building emissions.
 EMISSIONS_FILE = "emissions.json"
-# Point to the public folder in the parent directory so the frontend works with the updated file if we still rely on file updates
+
+# GeoJSON file used by the frontend campus map.
 GEOJSON_FILE = "../public/campus.json"
 
-# Load the model output once when the server starts
+
 def load_data():
+    """
+    Load emissions data from the JSON file.
+
+    Returns an empty dictionary if the file is not available yet.
+    """
     if not os.path.exists(EMISSIONS_FILE):
         return {}
-    with open(EMISSIONS_FILE, "r") as f:
+
+    with open(EMISSIONS_FILE, "r", encoding="utf-8") as f:
         return json.load(f)
 
+
+# Load emissions once at server startup to avoid rereading the file per request.
 EMISSIONS_DATA = load_data()
+
 
 def update_geojson_file(results):
     """
-    Injects API results and standardized heights into the GeoJSON file.
-    Ensures compatibility with the index.html (lowercase keys).
-    """
-    # Force UTF-8 encoding on standard streams to prevent UnicodeEncodeError in Windows CMD/PowerShell
-    if hasattr(sys.stdout, 'reconfigure'):
-        sys.stdout.reconfigure(encoding='utf-8')
-    if hasattr(sys.stderr, 'reconfigure'):
-        sys.stderr.reconfigure(encoding='utf-8')
+    Add current emissions and heat-level values to campus GeoJSON features.
 
+    The updated file is consumed by the frontend map.
+    """
+    # Configure UTF-8 output for Windows terminals.
+    if hasattr(sys.stdout, "reconfigure"):
+        sys.stdout.reconfigure(encoding="utf-8")
+
+    if hasattr(sys.stderr, "reconfigure"):
+        sys.stderr.reconfigure(encoding="utf-8")
+
+    # Stop safely if the frontend map file is unavailable.
     if not os.path.exists(GEOJSON_FILE):
         print(f"Warning: {GEOJSON_FILE} not found. Skipping GeoJSON update.")
         return
 
-    # 1. Load the existing GeoJSON
-    with open(GEOJSON_FILE, "r") as f:
+    # Load existing map data.
+    with open(GEOJSON_FILE, "r", encoding="utf-8") as f:
         geojson_data = json.load(f)
 
-    # 2. Create a lookup map for faster processing
+    # Create a dictionary for fast lookup by building ID.
     data_map = {
-        item['building_id']: {
-            'carbon': item['total_emission'],
-            'heatLevel': item['scaled_emission']
-        } for item in results
+        item["building_id"]: {
+            "carbon": item["total_emission"],
+            "heatLevel": item["scaled_emission"],
+        }
+        for item in results
     }
 
-    # 3. Standard Height Mapping (FIXES THE HEIGHT MISTAKES)
-    # This ensures buildings look proportional on the map
+    # Standard building heights used for consistent 3D map rendering.
     standard_heights = {
         "Large_Hostel_Boys": 35,
         "Large_Hostel_Girls": 35,
@@ -103,208 +141,286 @@ def update_geojson_file(results):
         "Clinic": 12,
         "Sports_Complex": 18,
         "Small_Hostel_Boys": 25,
-        "Small_Hostel_Girls": 25
+        "Small_Hostel_Girls": 25,
     }
 
-    # 4. Update features in the GeoJSON
+    # Count how many map features receive live emissions values.
     updated_count = 0
-    for feature in geojson_data.get('features', []):
-        # Handle original uppercase "Name" or lowercase "name"
-        building_name = feature['properties'].get('Name') or feature['properties'].get('name')
-        
-        # --- FIX: PROPERTY NAMES (Lowercase for HTML Compatibility) ---
-        # We set lowercase keys so index.html works perfectly
-        feature['properties']['name'] = building_name
-        
-        # Set standardized height
-        feature['properties']['height'] = standard_heights.get(building_name, 15)
 
+    for feature in geojson_data.get("features", []):
+        # Support either legacy "Name" or standard lowercase "name".
+        building_name = (
+            feature["properties"].get("Name")
+            or feature["properties"].get("name")
+        )
+
+        # Store the normalized lowercase property expected by the frontend.
+        feature["properties"]["name"] = building_name
+
+        # Use the configured height or a default height of 15.
+        feature["properties"]["height"] = standard_heights.get(building_name, 15)
+
+        # Add carbon and heat-level data only when emissions data exists.
         if building_name in data_map:
-            # Inject live data
-            feature['properties']['carbon'] = data_map[building_name]['carbon']
-            feature['properties']['heatLevel'] = data_map[building_name]['heatLevel']
+            feature["properties"]["carbon"] = data_map[building_name]["carbon"]
+            feature["properties"]["heatLevel"] = data_map[building_name]["heatLevel"]
             updated_count += 1
 
-    # 5. Overwrite the GeoJSON file
-    with open(GEOJSON_FILE, "w") as f:
+    # Save the modified GeoJSON for the frontend map.
+    with open(GEOJSON_FILE, "w", encoding="utf-8") as f:
         json.dump(geojson_data, f, indent=4)
-    
-    print(f"✅ Success: {updated_count} buildings updated with live data and fixed heights.")
+
+    print(
+        f"✅ Success: {updated_count} buildings updated "
+        "with live data and fixed heights."
+    )
+
 
 @app.get("/get-emissions/{target_hour}")
 async def get_emissions(target_hour: int):
-    if not (0 <= target_hour <= 23):
-        raise HTTPException(status_code=400, detail="Hour must be between 0 and 23")
+    """
+    Return emissions for all buildings at a requested hour.
 
+    Values are scaled from 0 to 100 for frontend heat-map coloring.
+    """
+    # Validate the hour as a valid 24-hour clock value.
+    if not (0 <= target_hour <= 23):
+        raise HTTPException(
+            status_code=400,
+            detail="Hour must be between 0 and 23",
+        )
+
+    # Store one matching emissions value per building.
     extracted_results = []
 
+    # Search every building's timestamped emissions data.
     for building_id, timestamps in EMISSIONS_DATA.items():
         for ts_str, value in timestamps.items():
             dt_obj = datetime.strptime(ts_str, "%Y-%m-%d %H:%M:%S")
+
+            # Add the first record matching the requested hour.
             if dt_obj.hour == target_hour:
-                extracted_results.append({
-                    "building_id": building_id,
-                    "total_emission": value
-                })
+                extracted_results.append(
+                    {
+                        "building_id": building_id,
+                        "total_emission": value,
+                    }
+                )
                 break
 
+    # Return an error if no values exist for the selected hour.
     if not extracted_results:
-        raise HTTPException(status_code=404, detail="No data found for this hour")
+        raise HTTPException(
+            status_code=404,
+            detail="No data found for this hour",
+        )
 
+    # Convert results to a DataFrame for emission scaling.
     df = pd.DataFrame(extracted_results)
-    
-    # Calculate global min/max across ALL hours and buildings for consistent color scaling
+
+    # Gather every emission value to keep color scaling consistent across hours.
     all_emissions = []
+
     for timestamps in EMISSIONS_DATA.values():
         all_emissions.extend(timestamps.values())
-    
+
     global_min = min(all_emissions)
     global_max = max(all_emissions)
-    
+
+    # Avoid division by zero if every value is identical.
     if global_max == global_min:
-        df['scaled_emission'] = 0.0
+        df["scaled_emission"] = 0.0
     else:
-        df['scaled_emission'] = ((df['total_emission'] - global_min) / (global_max - global_min)) * 100
+        df["scaled_emission"] = (
+            (df["total_emission"] - global_min)
+            / (global_max - global_min)
+        ) * 100
 
+    # Build a clean, rounded JSON response.
     final_output = []
-    for _, row in df.iterrows():
-        final_output.append({
-            "building_id": row['building_id'],
-            "total_emission": round(row['total_emission'], 2),
-            "scaled_emission": round(row['scaled_emission'], 2)
-        })
 
-    # Trigger automation
+    for _, row in df.iterrows():
+        final_output.append(
+            {
+                "building_id": row["building_id"],
+                "total_emission": round(row["total_emission"], 2),
+                "scaled_emission": round(row["scaled_emission"], 2),
+            }
+        )
+
+    # Synchronize the frontend map with the selected hour's data.
     update_geojson_file(final_output)
 
     return {
         "hour": target_hour,
-        "results": final_output
+        "results": final_output,
     }
+
 
 @app.get("/get-historical-data/{days}")
 async def get_historical_data(days: int):
     """
-    Returns historical carbon emission data from the CSV file.
-    Calculates daily average campus emissions from hourly data.
+    Return daily average campus emissions for the requested number of days.
     """
+    # Restrict requests to a maximum one-year period.
     if not (1 <= days <= 365):
-        raise HTTPException(status_code=400, detail="Days must be between 1 and 365")
-    
+        raise HTTPException(
+            status_code=400,
+            detail="Days must be between 1 and 365",
+        )
+
+    # CSV file containing historical building emissions.
     csv_file = "snuc_carbon_year_2025.csv"
+
     if not os.path.exists(csv_file):
-        raise HTTPException(status_code=404, detail="Historical data file not found")
-    
-    # Load the CSV
+        raise HTTPException(
+            status_code=404,
+            detail="Historical data file not found",
+        )
+
+    # Load the CSV and convert its timestamp column to datetime values.
     df = pd.read_csv(csv_file)
-    df['Timestamp'] = pd.to_datetime(df['Timestamp'])
-    
-    # Get the most recent date in the dataset
-    max_date = df['Timestamp'].max()
-    
-    # Filter for the last N days
-    start_date = max_date - pd.Timedelta(days=days-1)
-    filtered_df = df[df['Timestamp'] >= start_date].copy()
-    
-    # Extract date and hour
-    filtered_df['Date'] = filtered_df['Timestamp'].dt.date
-    filtered_df['Hour'] = filtered_df['Timestamp'].dt.hour
-    
-    # First, sum emissions across all buildings for each hour
-    hourly_totals = filtered_df.groupby(['Date', 'Hour'])['Total_CO2e_kg'].sum().reset_index()
-    
-    # Then, calculate the average of the 24 hourly totals for each day
-    daily_averages = hourly_totals.groupby('Date')['Total_CO2e_kg'].mean().reset_index()
-    
-    # Format the response
+    df["Timestamp"] = pd.to_datetime(df["Timestamp"])
+
+    # Use the newest available date as the endpoint of the range.
+    max_date = df["Timestamp"].max()
+
+    # Calculate the beginning date for the requested period.
+    start_date = max_date - pd.Timedelta(days=days - 1)
+
+    # Keep only records within the requested date range.
+    filtered_df = df[df["Timestamp"] >= start_date].copy()
+
+    # Extract date and hour for grouping.
+    filtered_df["Date"] = filtered_df["Timestamp"].dt.date
+    filtered_df["Hour"] = filtered_df["Timestamp"].dt.hour
+
+    # Sum all building emissions for every campus hour.
+    hourly_totals = (
+        filtered_df.groupby(["Date", "Hour"])["Total_CO2e_kg"]
+        .sum()
+        .reset_index()
+    )
+
+    # Calculate each day's average hourly campus emissions.
+    daily_averages = (
+        hourly_totals.groupby("Date")["Total_CO2e_kg"]
+        .mean()
+        .reset_index()
+    )
+
+    # Format data for frontend chart consumption.
     historical_data = []
+
     for _, row in daily_averages.iterrows():
-        historical_data.append({
-            "date": row['Date'].strftime('%b %d'),  # e.g., "Jan 15"
-            "carbon": round(row['Total_CO2e_kg'], 2),
-            "buildings": 12  # Total number of buildings in campus
-        })
-    
+        historical_data.append(
+            {
+                "date": row["Date"].strftime("%b %d"),
+                "carbon": round(row["Total_CO2e_kg"], 2),
+                "buildings": 12,
+            }
+        )
+
     return {
         "days": days,
-        "data": historical_data
+        "data": historical_data,
     }
+
 
 @app.get("/get-insights")
 async def get_insights():
     """
-    Generates AI insights from emissions data using Google Gemini API.
-    Returns structured JSON with categorized insights.
+    Generate AI-based emissions insights using the Google Gemini API.
     """
-    # Check if emissions file exists
+    # The endpoint requires forecast emissions data.
     if not os.path.exists(EMISSIONS_FILE):
-        raise HTTPException(status_code=404, detail="Emissions data file not found")
-    
+        raise HTTPException(
+            status_code=404,
+            detail="Emissions data file not found",
+        )
+
     try:
-        # Read and parse emissions data
-        with open(EMISSIONS_FILE, 'r', encoding='utf-8') as f:
+        # Load the emissions data used to build the AI prompt.
+        with open(EMISSIONS_FILE, "r", encoding="utf-8") as f:
             emissions_data = json.load(f)
-        
-        # Calculate statistics for better AI context
+
+        # Lists and dictionaries for calculated campus statistics.
         all_emissions = []
         building_totals = {}
         hourly_totals = {}
-        
+
+        # Calculate total emissions per building and per hour.
         for building_id, timestamps in emissions_data.items():
             building_total = 0
+
             for ts_str, value in timestamps.items():
                 dt_obj = datetime.strptime(ts_str, "%Y-%m-%d %H:%M:%S")
                 hour = dt_obj.hour
-                
-                # Track building totals
+
+                # Add this value to the current building's total.
                 building_total += value
-                
-                # Track hourly totals
+
+                # Initialize the hour total when it is first encountered.
                 if hour not in hourly_totals:
                     hourly_totals[hour] = 0
+
+                # Add this value to the corresponding campus-hour total.
                 hourly_totals[hour] += value
-                
+
+                # Keep values for overall average calculation.
                 all_emissions.append(value)
-            
+
+            # Save this building's total after processing all timestamps.
             building_totals[building_id] = building_total
-        
-        # Find peak hour
+
+        # Identify the hour with the highest total campus emissions.
         peak_hour = max(hourly_totals, key=hourly_totals.get)
         peak_emission = hourly_totals[peak_hour]
-        
-        # Find top polluting buildings
-        sorted_buildings = sorted(building_totals.items(), key=lambda x: x[1], reverse=True)
+
+        # Sort buildings from highest to lowest total emissions.
+        sorted_buildings = sorted(
+            building_totals.items(),
+            key=lambda x: x[1],
+            reverse=True,
+        )
+
+        # Keep the three highest-emitting buildings.
         top_3_buildings = sorted_buildings[:3]
-        
-        # Calculate total and average
+
+        # Calculate overall total and average emissions.
         total_emissions = sum(all_emissions)
-        avg_emission = total_emissions / len(all_emissions) if all_emissions else 0
-        
-        # Create structured summary
+        avg_emission = (
+            total_emissions / len(all_emissions)
+            if all_emissions
+            else 0
+        )
+
+        # Create a compact statistical summary for Gemini.
         summary = {
             "total_emissions": round(total_emissions, 2),
             "average_emission": round(avg_emission, 2),
             "peak_hour": peak_hour,
             "peak_emission": round(peak_emission, 2),
-            "top_buildings": [{"name": name, "total": round(total, 2)} for name, total in top_3_buildings],
-            "building_count": len(building_totals)
+            "top_buildings": [
+                {"name": name, "total": round(total, 2)}
+                for name, total in top_3_buildings
+            ],
+            "building_count": len(building_totals),
         }
-        
-        # Get API key from environment variable
+
+        # Read the Gemini API key from environment variables.
         api_key = os.getenv("GEMINI_API_KEY")
 
         if not api_key:
             raise HTTPException(
                 status_code=500,
-                detail="GEMINI_API_KEY is not set in environment variables"
+                detail="GEMINI_API_KEY is not set in environment variables",
             )
 
-        
-        # Initialize Gemini client
+        # Initialize the Google Gemini client.
         client = genai.Client(api_key=api_key)
 
-        
-        # Create enhanced prompt requesting JSON output
+        # Ask Gemini to return a strict JSON object for the frontend.
         prompt = f"""You are analyzing carbon emissions data for a university campus with {summary['building_count']} buildings.
 
 DATA SUMMARY:
@@ -372,40 +488,44 @@ REQUIREMENTS:
 - Make descriptions informative but concise
 - Focus on practical, implementable solutions for a university campus
 - Return ONLY valid JSON, no markdown formatting or code blocks"""
-        
+
+        # Request AI-generated content from Gemini.
         response = client.models.generate_content(
             model="gemini-2.5-flash",
             contents=prompt,
         )
-        
-        # Parse the JSON response
+
+        # Get the model's text response.
         response_text = response.text.strip()
-        
-        # Remove markdown code blocks if present
+
+        # Remove Markdown fences if Gemini includes them despite the prompt.
         if response_text.startswith("```json"):
             response_text = response_text[7:]
+
         if response_text.startswith("```"):
             response_text = response_text[3:]
+
         if response_text.endswith("```"):
             response_text = response_text[:-3]
-        response_text = response_text.strip()
-        
-        # Parse JSON
-        insights_json = json.loads(response_text)
-        
+
+        # Parse the cleaned response into a Python dictionary.
+        insights_json = json.loads(response_text.strip())
+
         return {
             "success": True,
-            "insights": insights_json
+            "insights": insights_json,
         }
-        
+
     except json.JSONDecodeError as e:
+        # Return a useful error if Gemini does not provide valid JSON.
         raise HTTPException(
-            status_code=500, 
-            detail=f"Failed to parse AI response as JSON: {str(e)}"
-        )
-    except Exception as e:
-        raise HTTPException(
-            status_code=500, 
-            detail=f"Failed to generate insights: {str(e)}"
+            status_code=500,
+            detail=f"Failed to parse AI response as JSON: {str(e)}",
         )
 
+    except Exception as e:
+        # Return an API error for other issues, such as Gemini request failures.
+        raise HTTPException(
+            status_code=500,
+            detail=f"Failed to generate insights: {str(e)}",
+        )
