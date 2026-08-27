@@ -1,25 +1,55 @@
 <!doctype html>
+
+<!--
+  Root HTML document for the Campus Carbon Pulse frontend.
+  The React application is mounted inside the #root element below.
+-->
 <html lang="en" class="dark">
+  <head>
+    <!-- Use UTF-8 encoding for text and emoji support. -->
+    <meta charset="UTF-8" />
 
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Campus Carbon Pulse | Shiv Nadar University</title>
-  <link rel="icon" href="/ShivNadarUniversityLogo.avif" type="image/avif" />
-  <meta name="description"
-    content="Real-time 3D digital twin carbon footprint monitoring dashboard for university campus buildings. Track emissions with interactive heat maps and 24-hour forecasts." />
-  <meta name="author" content="Campus Twin" />
-  <meta name="theme-color" content="#222222" />
+    <!-- Make the layout responsive on mobiles, tablets, and desktops. -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-  <meta property="og:title" content="Campus Twin | Digital Carbon Dashboard" />
-  <meta property="og:description"
-    content="Real-time 3D digital twin carbon footprint monitoring for university campus" />
-  <meta property="og:type" content="website" />
-</head>
+    <!-- Browser-tab title. -->
+    <title>Campus Carbon Pulse | Shiv Nadar University</title>
 
-<body>
-  <div id="root"></div>
-  <script type="module" src="/src/main.tsx"></script>
-</body>
+    <!-- Website icon shown in browser tabs and bookmarks. -->
+    <link rel="icon" href="/ShivNadarUniversityLogo.avif" type="image/avif" />
 
+    <!-- Description used by search engines and link previews. -->
+    <meta
+      name="description"
+      content="Real-time 3D digital twin carbon footprint monitoring dashboard for university campus buildings. Track emissions with interactive heat maps and 24-hour forecasts."
+    />
+
+    <!-- Identifies the application or organization that created the page. -->
+    <meta name="author" content="Campus Twin" />
+
+    <!-- Sets the browser interface color on supported mobile browsers. -->
+    <meta name="theme-color" content="#222222" />
+
+    <!-- Open Graph metadata used when the website is shared on social platforms. -->
+    <meta
+      property="og:title"
+      content="Campus Twin | Digital Carbon Dashboard"
+    />
+
+    <meta
+      property="og:description"
+      content="Real-time 3D digital twin carbon footprint monitoring for university campus"
+    />
+
+    <!-- Declares this shared content as a website. -->
+    <meta property="og:type" content="website" />
+  </head>
+
+  <body>
+    <!-- React mounts the complete frontend application into this element. -->
+    <div id="root"></div>
+
+    <!-- Loads the TypeScript/React application entry point as an ES module. -->
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
 </html>
